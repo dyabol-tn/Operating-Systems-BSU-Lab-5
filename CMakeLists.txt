@@ -33,13 +33,17 @@ FetchContent_Declare(
   GIT_REPOSITORY https://github.com/google/googletest.git
   GIT_TAG v1.14.0
 )
-set(BUILD_GMOCK OFF CACHE BOOL "Disable GMock" FORCE)
-set(INSTALL_GTEST OFF CACHE BOOL "Disable GTest installation" FORCE)
+set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)
+set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-
 FetchContent_MakeAvailable(googletest)
 
 target_link_libraries(test PRIVATE gtest_main domain)
 
 enable_testing()
 add_test(NAME unit_tests COMMAND test)
+
+set_target_properties(server client test PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/bin"
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/bin"
+)

@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <windows.h>
 #include "constants.h"
 #include "fileio.h"
 #include "pipe.h"
@@ -21,9 +22,17 @@ int main() {
 
     NamedPipeServer server;
     if (!server.create(constants::PIPE_NAME, constants::PIPE_OUT_BUF, constants::PIPE_IN_BUF)) return 1;
-    std::cout << "Waiting client..." << std::endl;
+
+    STARTUPINFO si{};
+    PROCESS_INFORMATION pi{};
+    ZeroMemory(&si, sizeof(si));
+    si.cb = sizeof(si);
+    std::string cmd = "client.exe";
+    if (!CreateProcess(NULL, cmd.data(), NULL, NULL, FALSE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) return 1;
+    CloseHandle(pi.hThread);
+    CloseHandle(pi.hProcess);
+
     if (!server.accept()) return 1;
-    std::cout << "Client connected" << std::endl;
 
     while (true) {
         OpCode op;
